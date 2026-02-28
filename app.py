@@ -112,7 +112,7 @@ if include_custom:
 
 df = pd.DataFrame(rows).sort_values("recovery_readiness_0_100", ascending=False)
 
-st.subheader("Results")
+st.subheader("2) Results")
 st.dataframe(df, use_container_width=True)
 
 # Smaller charts
