@@ -2,7 +2,6 @@
 # Recovery Readiness Simulation App
 
 def main():
-    """Main application entry point."""
     print("Welcome to Recovery Readiness Simulation")
     pass
 
