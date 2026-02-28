@@ -124,7 +124,7 @@ plt.title("Recovery readiness by diet (proxy)")
 plt.tight_layout()
 st.pyplot(fig1)
 
-show_curve = st.checkbox("Show 14-day inflammation resolution curve", value=True)
+show_curve = st.checkbox("3) Show 14-day inflammation resolution curve", value=True)
 if show_curve:
     fig2 = plt.figure(figsize=(6, 3), dpi=150)
     for _, row in df.iterrows():
