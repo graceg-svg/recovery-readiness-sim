@@ -44,7 +44,8 @@ def simulate_inflammation_curve(readiness_0_100, days=14, initial_load=1.0, floo
 st.subheader("1) choose diets to compare")
 options = list(diet_library.keys())
 default = ["Mediterranean Recovery", "Typical Teen (Processed-Heavy)"]
-selected = st.multiselect("pick 2–4 diets", options, default=default)
+st.sidebar.header("controls")
+selected = st.sidebar.multiselect("pick 2–4 diets", options, default=default)
 
 if len(selected) < 2:
     st.warning("pick at least 2 diets.")
@@ -53,17 +54,14 @@ if len(selected) > 4:
     st.warning("keep it simple: pick max 4 diets.")
     selected = selected[:4]
 
-st.subheader("2) optional: add your own custom diet")
-with st.expander("build a custom diet (0–10 sliders)"):
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        repair_support = st.slider("repair_support", 0, 10, 5)
-    with c2:
-        inflammation_calming = st.slider("inflammation_calming", 0, 10, 5)
-    with c3:
-        processed_load = st.slider("processed_load", 0, 10, 5)
+st.sidebar.markdown("---")
+st.sidebar.subheader("custom diet (optional)")
 
-    include_custom = st.checkbox("include custom diet in comparison", value=False)
+repair_support = st.sidebar.slider("repair support", 0, 10, 5)
+inflammation_calming = st.sidebar.slider("inflammation calming", 0, 10, 5)
+processed_load = st.sidebar.slider("processed load", 0, 10, 5)
+
+include_custom = st.sidebar.checkbox("include custom diet", value=False)
 
 rows = []
 for name in selected:
