@@ -6,20 +6,25 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Recovery Readiness Diet Simulator", layout="centered")
 
 st.title("Recovery Readiness Diet Simulator")
-st.caption("Educational Simulation for Comparing Diet Patterns + Recovery-Readiness Proxies. Not medical advice.")
-with st.expander("what do the inputs & outputs mean?"):
-    st.markdown("""
-**inputs (0–10 proxies)**  
-- **repair_support:** proxy for how much the diet supports tissue repair + nervous system recovery (protein quality + micronutrient density).  
-- **inflammation_calming:** proxy for how much the diet supports downshifting inflammation (omega-3 + fiber + polyphenols + whole foods).  
-- **processed_load:** proxy for ultra-processed intake (added sugar/refined oils/packaged foods). higher = worse.
+st.caption(
+    "Educational simulation for comparing diet patterns and recovery-readiness proxies. Not medical advice."
+)
 
-**outputs**  
-- **recovery readiness (0–100):** a relative score computed from the inputs. higher = better recovery environment *in this model*.  
-- **14-day inflammation curve (proxy):** simulated inflammation resolution after injury. higher readiness → faster decline.  
+with st.expander("What do the inputs and outputs mean?"):
+    st.markdown(
+        """
+**Inputs (0–10 proxies)**  
+- **Repair support:** Proxy for how much the diet supports tissue repair and nervous system recovery (protein quality + micronutrient density).  
+- **Inflammation calming:** Proxy for how much the diet supports downshifting inflammation (omega-3 + fiber + polyphenols + whole foods).  
+- **Processed load:** Proxy for ultra-processed intake (added sugar/refined oils/packaged foods). Higher = worse.
 
-*note: this is an educational proxy model for comparing scenarios and generating hypotheses. it does not give medical advice or predict personal recovery timelines.*
-""")
+**Outputs**  
+- **Recovery readiness (0–100):** A relative score computed from the inputs. Higher = better recovery environment *in this model*.  
+- **14-day inflammation curve (proxy):** Simulated inflammation resolution after injury. Higher readiness → faster decline.  
+
+*Note: This is an educational proxy model for comparing scenarios and generating hypotheses. It does not provide medical advice or predict personal recovery timelines.*
+"""
+    )
 
 # 0–10 scale inputs (simple proxies)
 diet_library = {
@@ -41,7 +46,7 @@ def recovery_readiness_raw(d):
     p = d["processed_load"] / 10
     return float(0.45 * r + 0.45 * i - 0.35 * p)
 
-# theoretical bounds of the formula
+# Theoretical bounds of the formula
 MIN_RAW, MAX_RAW = -0.35, 0.90
 
 def to_0_100(raw):
@@ -49,76 +54,89 @@ def to_0_100(raw):
 
 def simulate_inflammation_curve(readiness_0_100, days=14, initial_load=1.0, floor=0.15):
     readiness = max(0.0, min(1.0, readiness_0_100 / 100.0))
-    k = 0.10 + 0.40 * readiness  # higher readiness -> faster decay
+    k = 0.10 + 0.40 * readiness  # Higher readiness -> faster decay
     t = np.arange(0, days + 1)
     load = floor + (initial_load - floor) * np.exp(-k * t)
     return t, load
 
-st.subheader("1) choose diets to compare")
+st.subheader("1) Choose diets to compare")
+
 options = list(diet_library.keys())
 default = ["Mediterranean Recovery", "Typical Teen (Processed-Heavy)"]
-st.sidebar.header("controls")
-selected = st.sidebar.multiselect("pick 2–4 diets", options, default=default)
+
+st.sidebar.header("Controls")
+selected = st.sidebar.multiselect("Pick 2–4 diets", options, default=default)
 
 if len(selected) < 2:
-    st.warning("pick at least 2 diets.")
+    st.warning("Pick at least 2 diets.")
     st.stop()
 if len(selected) > 4:
-    st.warning("keep it simple: pick max 4 diets.")
+    st.warning("Keep it simple: Pick max 4 diets.")
     selected = selected[:4]
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("custom diet (optional)")
+st.sidebar.subheader("Custom diet (Optional)")
 
-repair_support = st.sidebar.slider("repair support", 0, 10, 5)
-inflammation_calming = st.sidebar.slider("inflammation calming", 0, 10, 5)
-processed_load = st.sidebar.slider("processed load", 0, 10, 5)
+repair_support = st.sidebar.slider("Repair support", 0, 10, 5)
+inflammation_calming = st.sidebar.slider("Inflammation calming", 0, 10, 5)
+processed_load = st.sidebar.slider("Processed load", 0, 10, 5)
 
-include_custom = st.sidebar.checkbox("include custom diet", value=False)
+include_custom = st.sidebar.checkbox("Include custom diet", value=False)
 
 rows = []
 for name in selected:
     d = diet_library[name]
     raw = recovery_readiness_raw(d)
-    rows.append({
-        "diet": name,
-        **d,
-        "recovery_readiness_0_100": to_0_100(raw),
-    })
+    rows.append(
+        {
+            "diet": name,
+            **d,
+            "recovery_readiness_0_100": to_0_100(raw),
+        }
+    )
 
 if include_custom:
-    d = {"repair_support": repair_support, "inflammation_calming": inflammation_calming, "processed_load": processed_load}
+    d = {
+        "repair_support": repair_support,
+        "inflammation_calming": inflammation_calming,
+        "processed_load": processed_load,
+    }
     raw = recovery_readiness_raw(d)
-    rows.append({
-        "diet": "Your Custom Diet",
-        **d,
-        "recovery_readiness_0_100": to_0_100(raw),
-    })
+    rows.append(
+        {
+            "diet": "Your Custom Diet",
+            **d,
+            "recovery_readiness_0_100": to_0_100(raw),
+        }
+    )
 
 df = pd.DataFrame(rows).sort_values("recovery_readiness_0_100", ascending=False)
 
-st.subheader("3) results")
+st.subheader("Results")
 st.dataframe(df, use_container_width=True)
 
-fig1 = plt.figure()
+# Smaller charts
+fig1 = plt.figure(figsize=(6, 3), dpi=150)
 plt.bar(df["diet"], df["recovery_readiness_0_100"])
 plt.xticks(rotation=25, ha="right")
-plt.ylabel("recovery readiness (0–100)")
-plt.title("recovery readiness by diet (proxy)")
+plt.ylabel("Recovery readiness (0–100)")
+plt.title("Recovery readiness by diet (proxy)")
 plt.tight_layout()
 st.pyplot(fig1)
 
-show_curve = st.checkbox("show 14-day inflammation resolution curve", value=True)
+show_curve = st.checkbox("Show 14-day inflammation resolution curve", value=True)
 if show_curve:
-    fig2 = plt.figure()
+    fig2 = plt.figure(figsize=(6, 3), dpi=150)
     for _, row in df.iterrows():
         t, load = simulate_inflammation_curve(row["recovery_readiness_0_100"], days=14)
         plt.plot(t, load, label=row["diet"])
-    plt.xlabel("days after injury")
-    plt.ylabel("inflammation load (proxy)")
-    plt.title("simulated post-injury inflammation resolution (proxy)")
-    plt.legend()
+    plt.xlabel("Days after injury")
+    plt.ylabel("Inflammation load (proxy)")
+    plt.title("Simulated post-injury inflammation resolution (proxy)")
+    plt.legend(fontsize=7)
     plt.tight_layout()
     st.pyplot(fig2)
 
-st.caption("note: simplified proxy model for comparing scenarios + generating hypotheses. not a medical prediction tool.")
+st.caption(
+    "Note: Simplified proxy model for comparing scenarios and generating hypotheses. Not a medical prediction tool."
+)
