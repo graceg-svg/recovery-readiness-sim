@@ -5,8 +5,21 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Recovery Readiness Diet Simulator", layout="centered")
 
-st.title("recovery readiness diet simulator")
-st.caption("educational simulation for comparing diet patterns + recovery-readiness proxies. not medical advice.")
+st.title("Recovery Readiness Diet Simulator")
+st.caption("Educational Simulation for Comparing Diet Patterns + Recovery-Readiness Proxies. Not medical advice.")
+with st.expander("what do the inputs & outputs mean?"):
+    st.markdown("""
+**inputs (0–10 proxies)**  
+- **repair_support:** proxy for how much the diet supports tissue repair + nervous system recovery (protein quality + micronutrient density).  
+- **inflammation_calming:** proxy for how much the diet supports downshifting inflammation (omega-3 + fiber + polyphenols + whole foods).  
+- **processed_load:** proxy for ultra-processed intake (added sugar/refined oils/packaged foods). higher = worse.
+
+**outputs**  
+- **recovery readiness (0–100):** a relative score computed from the inputs. higher = better recovery environment *in this model*.  
+- **14-day inflammation curve (proxy):** simulated inflammation resolution after injury. higher readiness → faster decline.  
+
+*note: this is an educational proxy model for comparing scenarios and generating hypotheses. it does not give medical advice or predict personal recovery timelines.*
+""")
 
 # 0–10 scale inputs (simple proxies)
 diet_library = {
